@@ -4,6 +4,9 @@ const session = require('express-session');
 const passport = require('./auth');
 const { sequelize } = require('./models');
 const cors = require('cors');
+const logger = require('./logger');
+const errorHandler = require('./middleware/errorHandler');
+const notesRouter = require('./routes/notes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -79,6 +82,9 @@ function connectWithRetry() {
             setTimeout(connectWithRetry, 5000);
         });
 }
+
+app.use('/notes', notesRouter);
+app.use(errorHandler);
 
 connectWithRetry();
 
