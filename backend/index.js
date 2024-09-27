@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('./auth');
 const { sequelize } = require('./models');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,11 +23,33 @@ app.use('/users', usersRouter);
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
+    passport.authenticate('google', { failureRedirect: 'http://localhost:4000' }),
     (req, res) => {
-        res.redirect('/welcome');
+        res.redirect('http://localhost:4000');
     }
 );
+
+app.use(cors({
+    origin: 'http://localhost:4000',
+    credentials: true
+}));
+
+app.get('/auth/status', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ authenticated: true, user: req.user });
+    } else {
+        res.json({ authenticated: false });
+    }
+});
+
+app.post('/auth/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error logging out' });
+        }
+        res.json({ message: 'Logged out successfully' });
+    });
+});
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {

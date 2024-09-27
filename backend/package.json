@@ -6,7 +6,8 @@
     "pg": "^8.7.1",
     "sequelize": "^6.6.5",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "cors": "^2.8.5"
   },
   "name": "nodejs-api",
   "version": "1.0.0",
