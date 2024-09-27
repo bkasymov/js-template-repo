@@ -1,16 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
-const passport = require('./auth'); // Import the auth.js file
+const passport = require('./auth');
+const { sequelize } = require('./models');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-const mongoURI = process.env.MONGODB_URI;
-mongoose.connect(mongoURI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
 
 app.use(express.json());
 app.use(session({
@@ -24,10 +19,8 @@ app.use(passport.session());
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
 
-// Add route to initiate Google authentication
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// Google Auth callback route
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
@@ -35,7 +28,6 @@ app.get('/auth/google/callback',
     }
 );
 
-// Authentication middleware
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -43,17 +35,27 @@ function ensureAuthenticated(req, res, next) {
     res.redirect('/');
 }
 
-// Redirect root URL to Google authentication
 app.get('/', (req, res) => {
     res.redirect('/auth/google');
 });
 
-// Route to display "Hello World" after authentication
 app.get('/welcome', ensureAuthenticated, (req, res) => {
     res.send('Hello World');
 });
 
-app.listen(port, () => {
-    console.log('Server is running on port 3000');
-});
+function connectWithRetry() {
+    return sequelize.sync()
+        .then(() => {
+            console.log('Connected to database');
+            app.listen(port, () => {
+                console.log(`Server is running on port ${port}`);
+            });
+        })
+        .catch(err => {
+            console.log('Failed to connect to database. Retrying in 5 seconds...');
+            setTimeout(connectWithRetry, 5000);
+        });
+}
+
+connectWithRetry();
 

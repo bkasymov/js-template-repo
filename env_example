@@ -1,0 +1,9 @@
+PORT=3000
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+POSTGRES_DB=database
+SESSION_SECRET=your_session_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
