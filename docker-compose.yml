@@ -1,27 +1,21 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
+  template-backend:
+    build: ./template-backend
     ports:
       - "3000:3000"
     env_file:
       - .env
     depends_on:
       - postgres
-    # volumes:
-      # - ./backend:/app
-      # - /app/node_modules
 
-  frontend:
-    build: ./frontend
+  template-frontend:
+    build: ./template-frontend
     ports:
       - "4000:4000"
     depends_on:
-      - backend
-    # volumes:
-      # - ./frontend:/app
-      # - /app/node_modules
+      - template-backend
 
   postgres:
     container_name: postgres_container
