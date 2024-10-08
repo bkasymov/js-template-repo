@@ -23,7 +23,6 @@ backend/dist/
 
 # Docker
 docker-compose.override.yml
-Dockerfile
 
 # Miscellaneous
 .DS_Store
